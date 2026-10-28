@@ -114,6 +114,10 @@ canvas[hidden] {
   font: inherit;
   z-index: 2;
 }
+/* Preserve the projected marker position while the shared button press style is active. */
+.city-button:not(:disabled):active {
+  transform: translate(-50%, -50%);
+}
 .city-dot {
   width: 8px;
   height: 8px;
