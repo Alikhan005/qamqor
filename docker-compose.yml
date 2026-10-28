@@ -1,0 +1,25 @@
+name: qamqor
+
+services:
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8080:8080"
+    volumes:
+      - qamqor-data:/app/data
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:h2:file:/app/data/qamqor
+      CORS_ORIGINS: http://localhost:4200,http://127.0.0.1:4200,http://localhost:8081
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+
+volumes:
+  qamqor-data:
+

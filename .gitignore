@@ -1,0 +1,41 @@
+# Dependencies and generated builds
+node_modules/
+.angular/
+dist/
+target/
+coverage/
+out-tsc/
+test-results/
+playwright-report/
+
+# Local toolchains and database files
+.tools/
+data/
+*.mv.db
+*.trace.db
+*.db.lock
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+*.local
+*.log
+logs/
+
+# Editors and operating systems
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local automation state
+.codex/
+.agents/
+.aws/
+

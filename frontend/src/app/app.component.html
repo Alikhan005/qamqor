@@ -1,0 +1,969 @@
+<a href="#main" class="skip-link">{{
+  language() === "ru" ? "Перейти к содержимому" : "Мазмұнға өту"
+}}</a>
+@if (mobileMenu()) {
+  <button
+    class="sidebar-scrim"
+    (click)="mobileMenu.set(false)"
+    [attr.aria-label]="t('close')"
+  ></button>
+}
+<aside class="sidebar" [class.mobile-open]="mobileMenu()">
+  <button
+    class="brand"
+    (click)="navigate('overview')"
+    aria-label="Qamqor — главная"
+  >
+    <span class="brand-mark"><app-icon name="heart" /><span></span></span>
+    <span
+      >qamqor<span class="brand-dot">.</span
+      ><small>{{ t("tagline") }}</small></span
+    >
+  </button>
+  <div class="nav-caption">
+    {{ language() === "ru" ? "ПРОСТРАНСТВО ДОБРА" : "ЖАҚСЫЛЫҚ КЕҢІСТІГІ" }}
+  </div>
+  <nav
+    [attr.aria-label]="
+      language() === 'ru' ? 'Главная навигация' : 'Негізгі навигация'
+    "
+  >
+    @for (
+      item of [
+        { key: "overview", icon: "grid" },
+        { key: "discover", icon: "search" },
+        { key: "responses", icon: "hands" },
+        { key: "favorites", icon: "bookmark" },
+      ];
+      track item.key
+    ) {
+      <button
+        [class.active]="view() === item.key"
+        [attr.aria-current]="view() === item.key ? 'page' : null"
+        (click)="navigate($any(item.key))"
+      >
+        <app-icon [name]="item.icon" /><span>{{ t(item.key) }}</span>
+        @if (item.key === "responses" && data.responses().length) {
+          <span class="nav-count">{{ data.responses().length }}</span>
+        }
+      </button>
+    }
+    <div class="nav-divider"></div>
+    <button [class.active]="view() === 'about'" (click)="navigate('about')">
+      <app-icon name="info" /><span>{{ t("about") }}</span
+      ><span class="tiny-arrow">↗</span>
+    </button>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="sidebar-note">
+      <span class="note-star">✳</span>
+      <h3>{{ t("sideTitle") }}<br />{{ t("sideTitle2") }}</h3>
+      <p>{{ t("sideSub") }}</p>
+      <button (click)="findHelp()">
+        {{ t("volunteer") }} <app-icon name="arrow" />
+      </button>
+      <div class="note-loop"></div>
+    </div>
+    <div class="sidebar-footer">
+      <span class="country-flag">🇰🇿</span>
+      {{
+        language() === "ru"
+          ? "С заботой о Казахстане"
+          : "Қазақстанға қамқорлықпен"
+      }}
+      <span>♡</span>
+    </div>
+  </div>
+</aside>
+
+<div class="workspace">
+  <header class="topbar">
+    <div class="breadcrumb">
+      <button
+        class="mobile-toggle icon-button"
+        (click)="mobileMenu.set(!mobileMenu())"
+        [attr.aria-label]="'Меню'"
+      >
+        <app-icon name="menu" /></button
+      ><span>Qamqor</span><span class="breadcrumb-slash">/</span
+      ><strong>{{ t(view()) }}</strong>
+    </div>
+    <div class="topbar-actions">
+      <span class="country-label"
+        ><span class="status-dot"></span> Kazakhstan</span
+      >
+      <div class="language-switch" aria-label="Язык / Тіл">
+        <button
+          [class.selected]="language() === 'ru'"
+          (click)="setLanguage('ru')"
+          [attr.aria-pressed]="language() === 'ru'"
+        >
+          РУС</button
+        ><button
+          [class.selected]="language() === 'kk'"
+          (click)="setLanguage('kk')"
+          [attr.aria-pressed]="language() === 'kk'"
+        >
+          ҚАЗ
+        </button>
+      </div>
+      <div class="topbar-divider"></div>
+      <button class="profile-button" (click)="openModal('profile')">
+        <span class="avatar">{{
+          data.name() ? data.name().slice(0, 1).toUpperCase() : "Q"
+        }}</span
+        ><span class="profile-name">{{ data.name() || t("guest") }}</span
+        ><app-icon name="down" />
+      </button>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    @if (view() === "overview") {
+      <section class="hero">
+        <div>
+          <div class="eyebrow"><span></span>{{ t("platform") }}</div>
+          <h1>
+            {{ t("hero1") }}<br /><span
+              >{{ t("hero2")
+              }}<svg
+                viewBox="0 0 250 14"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <path d="M3 10Q120-5 247 7" /></svg></span
+            ><span class="hero-flower" aria-hidden="true">✳</span>
+          </h1>
+          <p>{{ t("subtitle") }}</p>
+          <button class="hero-project-link" (click)="navigate('about')">
+            {{ t("aboutLink") }} <app-icon name="arrow" />
+          </button>
+        </div>
+        <div class="hero-actions">
+          <button class="button primary" (click)="openModal('create')">
+            <app-icon name="plus" />{{ t("create") }}</button
+          ><button class="button text-button" (click)="findHelp()">
+            {{ t("volunteer") }}<app-icon name="arrow" />
+          </button>
+        </div>
+      </section>
+      <section class="stats-grid" aria-label="Статистика демопроекта">
+        @for (
+          stat of [
+            {
+              value: data.stats().activeRequests,
+              label: "active",
+              icon: "heart",
+              color: "sage",
+              suffix: "",
+            },
+            {
+              value: data.stats().volunteers,
+              label: "people",
+              icon: "people",
+              color: "peach",
+              suffix: "",
+            },
+            {
+              value: data.stats().cities,
+              label: "cities",
+              icon: "pin",
+              color: "lavender",
+              suffix: "",
+            },
+            {
+              value: data.stats().completedRequests,
+              label: "completed",
+              icon: "check",
+              color: "sand",
+              suffix: "",
+            },
+          ];
+          track stat.label
+        ) {
+          <div class="stat-card">
+            <span class="stat-icon" [class]="'stat-icon ' + stat.color"
+              ><app-icon [name]="stat.icon"
+            /></span>
+            <div>
+              <strong
+                >{{ stat.value }}<span>{{ stat.suffix }}</span></strong
+              >
+              <p>{{ t(stat.label) }}</p>
+            </div>
+            <span class="stat-decoration">↗</span>
+          </div>
+        }
+      </section>
+      <section class="map-and-story">
+        <div class="map-card">
+          <div class="map-heading">
+            <div>
+              <h2>
+                {{ t("mapTitle") }} <span class="live-badge">LIVE DEMO</span>
+              </h2>
+              <p>{{ t("mapSub") }}</p>
+            </div>
+            <button class="map-country" (click)="city.set('')">
+              <span>🇰🇿</span>{{ city() || t("allCities")
+              }}<app-icon name="down" />
+            </button>
+          </div>
+          <div class="map-container">
+            <app-kazakhstan-map
+              [city]="city()"
+              [language]="language()"
+              (citySelect)="chooseCity($event)"
+            />
+          </div>
+        </div>
+        <aside class="story-card">
+          <div class="story-top">
+            <span class="story-pill">BIRGE · ВМЕСТЕ</span
+            ><span class="story-spark">✧</span>
+          </div>
+          <h2>{{ t("together1") }}<br />{{ t("together2") }}</h2>
+          <p>{{ t("togetherSub") }}</p>
+          <div class="grow-illustration" aria-hidden="true">
+            <svg viewBox="0 0 300 170">
+              <circle cx="150" cy="91" r="68" fill="#d9e7b6" />
+              <circle
+                cx="150"
+                cy="91"
+                r="53"
+                fill="none"
+                stroke="#b3cb8f"
+                stroke-dasharray="3 6"
+              />
+              <path
+                d="M150 141V65"
+                fill="none"
+                stroke="#315b45"
+                stroke-width="4"
+                stroke-linecap="round"
+              />
+              <path
+                d="M149 107C104 110 96 71 104 64c33-2 49 14 45 43Z"
+                fill="#6a9567"
+              />
+              <path
+                d="M151 86c-3-34 22-53 45-50 4 26-14 49-45 50Z"
+                fill="#234e42"
+              />
+              <path
+                d="M150 108l-29-25M151 85l28-30"
+                fill="none"
+                stroke="#e5eecf"
+                stroke-width="2"
+              />
+              <path
+                d="M78 148c-2-26 20-42 45-19l27 15 29-15c25-23 47-7 45 19"
+                fill="#e6b28c"
+                stroke="#234e42"
+                stroke-width="2"
+              />
+              <path
+                d="M123 129l27 15 29-15M150 144v15"
+                fill="none"
+                stroke="#b37d5d"
+                stroke-width="2"
+              />
+              <path
+                d="M67 57l4-9 4 9 9 4-9 4-4 9-4-9-9-4ZM224 105l3-7 3 7 7 3-7 3-3 7-3-7-7-3Z"
+                fill="#e4bd61"
+              />
+              <circle cx="220" cy="40" r="4" fill="#8ba46d" />
+            </svg>
+          </div>
+          <button (click)="findHelp()">
+            {{ t("firstStep") }}<span><app-icon name="arrow" /></span>
+          </button>
+        </aside>
+      </section>
+    }
+
+    @if (view() === "about") {
+      <section class="about-section">
+        <div class="eyebrow"><span></span>QAMQOR / OPEN SOURCE</div>
+        <h1>{{ t("aboutTitle") }}</h1>
+        <p class="about-intro">{{ t("aboutSub") }}</p>
+        <div class="about-mission">
+          <span class="mission-icon"><app-icon name="heart" /></span>
+          <div>
+            <h2>
+              {{
+                language() === "ru"
+                  ? "Меньше поиска — больше помощи"
+                  : "Іздеу азайса, көмек көбейеді"
+              }}
+            </h2>
+            <p>
+              {{
+                language() === "ru"
+                  ? "Объявления о помощи часто теряются в чатах. Qamqor предлагает понятный каталог по городам и направлениям, чтобы желание помочь превращалось в конкретное действие."
+                  : "Көмек туралы хабарландырулар чаттарда жоғалып кетеді. Qamqor қала мен бағыт бойынша түсінікті каталог ұсынады, сонда көмектесуге деген ниет нақты іске айналады."
+              }}
+            </p>
+            <div class="audience-tags">
+              <span>{{
+                language() === "ru" ? "Волонтёрам" : "Еріктілерге"
+              }}</span>
+              <span>{{
+                language() === "ru"
+                  ? "Инициативным группам"
+                  : "Бастамашыл топтарға"
+              }}</span>
+              <span>{{
+                language() === "ru" ? "Организаторам" : "Ұйымдастырушыларға"
+              }}</span>
+            </div>
+          </div>
+        </div>
+        <h2 class="about-section-title">{{ t("howItWorks") }}</h2>
+        <div class="about-grid steps-grid">
+          <article>
+            <span class="about-number">01</span>
+            <h2>{{ t("stepCity") }}</h2>
+            <p>{{ t("stepCitySub") }}</p>
+          </article>
+          <article>
+            <span class="about-number">02</span>
+            <h2>{{ t("stepFind") }}</h2>
+            <p>{{ t("stepFindSub") }}</p>
+          </article>
+          <article>
+            <span class="about-number">03</span>
+            <h2>{{ t("stepJoin") }}</h2>
+            <p>{{ t("stepJoinSub") }}</p>
+          </article>
+        </div>
+        <div class="about-project">
+          <div>
+            <div class="eyebrow">OPEN SOURCE · PORTFOLIO</div>
+            <h2>{{ t("portfolioTitle") }}</h2>
+            <p>{{ t("portfolioSub") }}</p>
+            <div class="project-stack" aria-label="Технологии">
+              <span>Angular</span><span>Java · Spring Boot</span
+              ><span>Three.js</span><span>PostgreSQL</span><span>Docker</span>
+            </div>
+            <div class="project-actions">
+              <button class="button primary" (click)="findHelp()">
+                {{ t("volunteer") }}<app-icon name="arrow" />
+              </button>
+              @if (projectLinks.repositoryUrl) {
+                <a
+                  class="button secondary"
+                  [href]="projectLinks.repositoryUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >{{ t("sourceCode") }} ↗</a
+                >
+              }
+            </div>
+          </div>
+          <div class="project-emblem" aria-hidden="true">
+            <app-icon name="hands" /><span>QAMQOR</span
+            ><small>BUILD WITH CARE</small>
+          </div>
+        </div>
+        <div class="about-demo-note">
+          <app-icon name="info" />
+          <p>
+            <strong>{{ t("demo") }}.</strong> {{ t("fictional") }}
+            {{ t("localNote") }}
+          </p>
+        </div>
+        @if (isLocalDevelopment) {
+          <details class="developer-tools">
+            <summary>
+              {{
+                language() === "ru"
+                  ? "Для разработчиков: Java API"
+                  : "Әзірлеушілерге: Java API"
+              }}
+            </summary>
+            <div>
+              <span>{{ data.mode() === "api" ? t("api") : t("demo") }}</span>
+              <button
+                class="button secondary small"
+                (click)="data.connect()"
+                [disabled]="data.connecting()"
+              >
+                {{ data.connecting() ? t("connecting") : t("connect")
+                }}<app-icon name="arrow" />
+              </button>
+            </div>
+          </details>
+        }
+      </section>
+    } @else {
+      <section class="requests-section" id="requests">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow section-eyebrow">
+              {{
+                view() === "overview"
+                  ? "НАЙДИТЕ СВОЁ ДОБРОЕ ДЕЛО"
+                  : "QAMQOR COMMUNITY"
+              }}
+            </div>
+            <h2>
+              {{
+                view() === "overview" || view() === "discover"
+                  ? t("list")
+                  : t(view())
+              }}<span class="count-badge">{{ visibleRequests().length }}</span>
+            </h2>
+            <p>
+              {{
+                view() === "responses" || view() === "favorites"
+                  ? t("localNote")
+                  : t("listSub")
+              }}
+            </p>
+          </div>
+          @if (view() !== "overview") {
+            <button class="button primary small" (click)="openModal('create')">
+              <app-icon name="plus" />{{ t("create") }}
+            </button>
+          }
+        </div>
+        <div class="category-tabs" aria-label="Категории">
+          <button [class.active]="category() === ''" (click)="category.set('')">
+            <app-icon name="grid" />{{ t("all") }}
+          </button>
+          @for (cat of categories; track cat) {
+            <button
+              [class.active]="category() === cat"
+              (click)="category.set(cat)"
+            >
+              <app-icon [name]="meta[cat].icon" />{{ categoryName(cat) }}
+            </button>
+          }
+        </div>
+        <div class="filter-bar">
+          <label class="search-field"
+            ><app-icon name="search" /><input
+              type="search"
+              [placeholder]="t('search')"
+              [attr.aria-label]="t('search')"
+              [ngModel]="query()"
+              (ngModelChange)="query.set($event)" /></label
+          ><label class="city-select"
+            ><app-icon name="pin" /><select
+              [ngModel]="city()"
+              (ngModelChange)="city.set($event)"
+              [attr.aria-label]="t('city')"
+            >
+              <option value="">{{ t("clearCity") }}</option>
+              @for (c of cities; track c) {
+                <option [value]="c">{{ c }}</option>
+              }
+            </select></label
+          ><label class="status-select"
+            ><select
+              [ngModel]="status()"
+              (ngModelChange)="status.set($event)"
+              aria-label="Статус"
+            >
+              <option value="OPEN">{{ t("statusOpen") }}</option>
+              <option value="COMPLETED">{{ t("statusCompleted") }}</option>
+              <option value="">{{ t("statusAll") }}</option>
+            </select></label
+          ><label class="sort-select"
+            ><select
+              [ngModel]="sort()"
+              (ngModelChange)="sort.set($event)"
+              aria-label="Сортировка"
+            >
+              <option value="recommended">{{ t("recommended") }}</option>
+              <option value="date">{{ t("byDate") }}</option>
+              <option value="newest">{{ t("newest") }}</option>
+            </select></label
+          >
+        </div>
+        @if (city() || category() || query()) {
+          <div class="filter-summary">
+            <span
+              >{{ t("results") }}: {{ visibleRequests().length }}
+              @if (city()) {
+                · {{ city() }}
+              }</span
+            ><button (click)="resetFilters()">
+              {{ t("reset") }}<app-icon name="close" />
+            </button>
+          </div>
+        }
+        <div class="request-grid">
+          @for (request of visibleRequests(); track request.id) {
+            <article class="request-card">
+              <div [class]="'request-art ' + meta[request.category].color">
+                <span class="art-ring ring-one"></span
+                ><span class="art-ring ring-two"></span
+                ><span class="art-dots">· · ·<br />· · ·</span
+                ><app-icon
+                  class="art-icon"
+                  [name]="meta[request.category].icon"
+                /><span class="category-badge">{{
+                  categoryName(request.category)
+                }}</span
+                ><button
+                  class="favorite-button"
+                  [class.saved]="data.favorites().includes(request.id)"
+                  [attr.aria-label]="
+                    data.favorites().includes(request.id)
+                      ? t('favoriteRemove')
+                      : t('favoriteAdd')
+                  "
+                  [attr.aria-pressed]="data.favorites().includes(request.id)"
+                  (click)="data.toggleFavorite(request.id)"
+                >
+                  <app-icon name="bookmark" />
+                </button>
+                @if (request.urgency === "URGENT") {
+                  <span class="urgent-badge"
+                    ><span></span>{{ t("urgent") }}</span
+                  >
+                }
+              </div>
+              <div class="request-content">
+                <div class="request-meta">
+                  <span><app-icon name="pin" />{{ request.city }}</span
+                  ><span
+                    ><app-icon name="calendar" />{{
+                      formatDate(request.date)
+                    }}</span
+                  >
+                </div>
+                <button
+                  class="card-title"
+                  (click)="openModal('detail', request)"
+                >
+                  <h3>{{ request.title }}</h3>
+                </button>
+                <p class="request-description">{{ request.description }}</p>
+                <div class="organizer">
+                  <span>{{ request.organizer.slice(0, 1) }}</span
+                  >{{ request.organizer }}
+                </div>
+                <div class="capacity">
+                  <div>
+                    <span
+                      ><app-icon name="people" />{{
+                        language() === "ru" ? "Волонтёры" : "Еріктілер"
+                      }}</span
+                    ><strong
+                      >{{ request.volunteers }}
+                      <span>/ {{ request.targetVolunteers }}</span></strong
+                    >
+                  </div>
+                  <div
+                    class="progress-track"
+                    role="progressbar"
+                    [attr.aria-label]="t('team')"
+                    [attr.aria-valuenow]="request.volunteers"
+                    aria-valuemin="0"
+                    [attr.aria-valuemax]="request.targetVolunteers"
+                  >
+                    <span [style.width.%]="progress(request)"></span>
+                  </div>
+                </div>
+                <div class="card-actions">
+                  <button
+                    class="details-button"
+                    (click)="openModal('detail', request)"
+                  >
+                    {{ t("details") }}<app-icon name="arrow" /></button
+                  ><button
+                    class="join-button"
+                    [class.joined]="isJoined(request)"
+                    [disabled]="isJoined(request) || isFull(request)"
+                    (click)="openModal('join', request)"
+                  >
+                    @if (isJoined(request)) {
+                      <app-icon name="check" />
+                    }
+                    {{
+                      isJoined(request)
+                        ? t("joined")
+                        : isFull(request)
+                          ? t("full")
+                          : t("join")
+                    }}
+                  </button>
+                </div>
+              </div>
+            </article>
+          } @empty {
+            <div class="empty-state">
+              <span
+                ><app-icon
+                  [name]="
+                    view() === 'favorites'
+                      ? 'bookmark'
+                      : view() === 'responses'
+                        ? 'hands'
+                        : 'search'
+                  "
+              /></span>
+              <h3>{{ t("empty") }}</h3>
+              <p>{{ t("emptySub") }}</p>
+              <button
+                class="button secondary"
+                (click)="
+                  view() === 'favorites' || view() === 'responses'
+                    ? navigate('discover')
+                    : resetFilters()
+                "
+              >
+                {{
+                  view() === "favorites" || view() === "responses"
+                    ? t("discover")
+                    : t("reset")
+                }}<app-icon name="arrow" />
+              </button>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    @if (data.connectionError()) {
+      <div class="connection-notice" role="status">
+        <app-icon name="info" /><span>{{ data.connectionError() }}</span
+        ><button (click)="data.connect()" [disabled]="data.connecting()">
+          {{ data.connecting() ? t("connecting") : t("connect") }}
+        </button>
+      </div>
+    }
+    @if (data.storageWarning()) {
+      <div class="connection-notice" role="status">
+        {{
+          language() === "ru"
+            ? "Браузер не разрешает сохранение. Изменения доступны до перезагрузки страницы."
+            : "Браузер сақтауға рұқсат бермейді. Өзгерістер бет жаңартылғанға дейін қолжетімді."
+        }}
+      </div>
+    }
+    <footer class="main-footer">
+      <div>
+        <strong>qamqor.</strong><span>© 2026</span
+        ><span class="footer-divider">/</span><span>{{ t("fictional") }}</span>
+        @if (projectLinks.repositoryUrl) {
+          <a
+            class="footer-source"
+            [href]="projectLinks.repositoryUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            >GitHub ↗</a
+          >
+        }
+      </div>
+      <span class="mode-label" [class.api-mode]="data.mode() === 'api'"
+        ><span></span>{{ data.mode() === "api" ? t("api") : t("demo") }}</span
+      >
+    </footer>
+  </main>
+</div>
+
+<div class="toast-region" aria-live="polite" aria-atomic="true">
+  @if (toast()) {
+    <div class="toast">
+      <span><app-icon name="check" /></span>{{ toast()
+      }}<button
+        class="icon-button"
+        (click)="toast.set('')"
+        [attr.aria-label]="t('close')"
+      >
+        <app-icon name="close" />
+      </button>
+    </div>
+  }
+</div>
+
+@if (modal()) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <section
+      class="modal"
+      [class.wide-modal]="modal() === 'create'"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      (click)="$event.stopPropagation()"
+      (keydown)="onDialogKey($event)"
+    >
+      <button
+        class="modal-close icon-button"
+        (click)="closeModal()"
+        [disabled]="submitting()"
+        [attr.aria-label]="t('close')"
+      >
+        <app-icon name="close" />
+      </button>
+      @if (modal() === "create") {
+        <span class="modal-symbol"><app-icon name="spark" /></span>
+        <h2 id="modal-title">{{ t("createTitle") }}</h2>
+        <p class="modal-subtitle">{{ t("createSub") }}</p>
+        <form
+          #requestForm="ngForm"
+          (ngSubmit)="create(requestForm.valid ?? false)"
+        >
+          <label
+            >{{ t("title")
+            }}<input
+              name="title"
+              [(ngModel)]="form.title"
+              required
+              minlength="8"
+              maxlength="140"
+              placeholder="Например, поможем соседям с продуктами"
+              data-initial-focus /></label
+          ><label
+            >{{ t("description")
+            }}<textarea
+              name="description"
+              [(ngModel)]="form.description"
+              required
+              minlength="20"
+              maxlength="2000"
+              rows="3"
+              placeholder="Опишите задачу, время и то, что нужно взять с собой"
+            ></textarea>
+          </label>
+          <div class="form-columns">
+            <label
+              >{{ t("city")
+              }}<select name="city" [(ngModel)]="form.city" required>
+                @for (c of cities; track c) {
+                  <option [value]="c">{{ c }}</option>
+                }
+              </select></label
+            ><label
+              >{{ t("cat")
+              }}<select name="category" [(ngModel)]="form.category" required>
+                @for (c of categories; track c) {
+                  <option [value]="c">{{ categoryName(c) }}</option>
+                }
+              </select></label
+            >
+          </div>
+          <label
+            >{{ t("organizer")
+            }}<input
+              name="organizer"
+              [(ngModel)]="form.organizer"
+              required
+              minlength="3"
+              maxlength="100"
+              placeholder="Название вашей команды"
+          /></label>
+          <div class="form-columns">
+            <label
+              >{{ t("date")
+              }}<input
+                type="date"
+                name="date"
+                [(ngModel)]="form.date"
+                required
+                [min]="today" /></label
+            ><label
+              >{{ t("capacity")
+              }}<input
+                type="number"
+                name="targetVolunteers"
+                [(ngModel)]="form.targetVolunteers"
+                required
+                min="1"
+                max="200"
+            /></label>
+          </div>
+          <label
+            >{{ t("location")
+            }}<input
+              name="location"
+              [(ngModel)]="form.location"
+              required
+              minlength="5"
+              maxlength="200"
+              placeholder="Район или общественное место — без личного адреса" /></label
+          ><label class="checkbox-label"
+            ><input
+              type="checkbox"
+              name="urgent"
+              [ngModel]="form.urgency === 'URGENT'"
+              (ngModelChange)="form.urgency = $event ? 'URGENT' : 'NORMAL'"
+            />{{ t("urgentCheck") }}</label
+          >
+          <p class="form-note">
+            {{ t("fictional") }}
+            {{
+              language() === "ru"
+                ? "Не указывайте персональные данные."
+                : "Жеке деректерді көрсетпеңіз."
+            }}
+          </p>
+          @if (formError()) {
+            <p class="form-error" role="alert">{{ formError() }}</p>
+          }
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="button secondary"
+              (click)="closeModal()"
+              [disabled]="submitting()"
+            >
+              {{ t("cancel") }}</button
+            ><button
+              type="submit"
+              class="button primary"
+              [disabled]="
+                !requestForm.valid ||
+                submitting() ||
+                form.date < today ||
+                !form.title.trim() ||
+                !form.organizer.trim() ||
+                !form.location.trim()
+              "
+            >
+              {{ submitting() ? t("sending") : t("publish")
+              }}<app-icon name="arrow" />
+            </button>
+          </div>
+        </form>
+      }
+      @if (modal() === "detail") {
+        @if (selectedRequest(); as request) {
+          <span [class]="'modal-symbol ' + meta[request.category].color"
+            ><app-icon [name]="meta[request.category].icon" /></span
+          ><span class="detail-category">{{
+            categoryName(request.category)
+          }}</span>
+          <h2 id="modal-title">{{ request.title }}</h2>
+          <div class="detail-meta">
+            <span
+              ><app-icon name="pin" />{{ request.city }} ·
+              {{ request.location }}</span
+            ><span
+              ><app-icon name="calendar" />{{ formatDate(request.date) }}</span
+            >
+          </div>
+          <p class="detail-description">{{ request.description }}</p>
+          <div class="detail-organizer">
+            <span class="avatar">{{ request.organizer.slice(0, 1) }}</span>
+            <div>
+              <small>{{ t("organizerLabel") }}</small
+              ><strong>{{ request.organizer }}</strong>
+            </div>
+          </div>
+          <div class="detail-capacity">
+            <span>{{ t("team") }}</span
+            ><strong
+              >{{ request.volunteers }} / {{ request.targetVolunteers }}</strong
+            >
+            <div class="progress-track">
+              <span [style.width.%]="progress(request)"></span>
+            </div>
+          </div>
+          <p class="form-note">{{ t("fictional") }}</p>
+          <button
+            class="button primary full-width"
+            [disabled]="isJoined(request) || isFull(request)"
+            (click)="openModal('join', request)"
+          >
+            {{
+              isJoined(request)
+                ? t("joined")
+                : isFull(request)
+                  ? t("full")
+                  : t("join")
+            }}<app-icon [name]="isJoined(request) ? 'check' : 'arrow'" />
+          </button>
+        }
+      }
+      @if (modal() === "join") {
+        @if (selectedRequest(); as request) {
+          <span class="modal-symbol"><app-icon name="hands" /></span>
+          <h2 id="modal-title">{{ t("joinTitle") }}</h2>
+          <p class="modal-subtitle">{{ t("joinSub") }}</p>
+          <div class="join-summary">
+            <span [class]="'stat-icon ' + meta[request.category].color"
+              ><app-icon [name]="meta[request.category].icon"
+            /></span>
+            <div>
+              <strong>{{ request.title }}</strong
+              ><small
+                >{{ request.city }} · {{ formatDate(request.date) }}</small
+              >
+            </div>
+          </div>
+          <form #joinForm="ngForm" (ngSubmit)="join(joinForm.valid ?? false)">
+            <label
+              >{{ t("name")
+              }}<input
+                name="name"
+                [(ngModel)]="volunteerName"
+                required
+                minlength="2"
+                maxlength="80"
+                autocomplete="given-name"
+                data-initial-focus
+                placeholder="Например, Алия"
+            /></label>
+            <p class="form-note">{{ t("joinNote") }}</p>
+            @if (formError()) {
+              <p class="form-error" role="alert">{{ formError() }}</p>
+            }
+            <div class="modal-actions">
+              <button
+                class="button secondary"
+                type="button"
+                (click)="closeModal()"
+                [disabled]="submitting()"
+              >
+                {{ t("cancel") }}</button
+              ><button
+                class="button primary"
+                type="submit"
+                [disabled]="
+                  !joinForm.valid || !volunteerName.trim() || submitting()
+                "
+              >
+                {{ submitting() ? t("sending") : t("join")
+                }}<app-icon name="heart" />
+              </button>
+            </div>
+          </form>
+        }
+      }
+      @if (modal() === "profile") {
+        <span class="modal-symbol"><app-icon name="heart" /></span>
+        <h2 id="modal-title">{{ t("profile") }}</h2>
+        <p class="modal-subtitle">{{ t("profileSub") }}</p>
+        <form
+          #profileForm="ngForm"
+          (ngSubmit)="saveProfile(profileForm.valid ?? false)"
+        >
+          <label
+            >{{ t("name")
+            }}<input
+              name="profileName"
+              [(ngModel)]="profileName"
+              required
+              minlength="2"
+              maxlength="80"
+              autocomplete="given-name"
+              data-initial-focus
+          /></label>
+          <p class="form-note">{{ t("localNote") }}</p>
+          <button
+            class="button primary full-width"
+            type="submit"
+            [disabled]="!profileForm.valid || !profileName.trim()"
+          >
+            {{ t("save") }}<app-icon name="check" />
+          </button>
+        </form>
+      }
+    </section>
+  </div>
+}

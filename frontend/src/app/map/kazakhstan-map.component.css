@@ -1,0 +1,418 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+  color: #254d40;
+  font-family: inherit;
+}
+* {
+  box-sizing: border-box;
+}
+.map-shell {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+  overflow: hidden;
+  background: radial-gradient(
+    ellipse at 54% 42%,
+    #f1f5eb 0%,
+    #eaf1e7 49%,
+    #e4ede3 100%
+  );
+  border: 1px solid #dfe8dc;
+  border-radius: 18px;
+}
+.map-shell::after {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  content: "";
+  box-shadow: inset 0 0 70px 12px #eaf1e86b;
+  border-radius: inherit;
+}
+.map-heading {
+  position: absolute;
+  inset: 21px 23px auto;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  pointer-events: none;
+}
+.map-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #466758;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 1.35px;
+  white-space: nowrap;
+}
+.badge-dot {
+  width: 5px;
+  height: 5px;
+  background: #1a8c70;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px #148a7310;
+}
+.badge-separator {
+  margin: 0 1px;
+  color: #9aac9b;
+  font-weight: 400;
+}
+.map-hint {
+  color: #7c9180;
+  font-size: 10px;
+  letter-spacing: 0.1px;
+}
+.map-viewport {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+}
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: pan-y;
+}
+canvas:active {
+  cursor: grabbing;
+}
+canvas[hidden] {
+  display: none;
+}
+.city-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.city-button {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #365846;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  pointer-events: auto;
+  visibility: hidden;
+  font: inherit;
+  z-index: 2;
+}
+.city-dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border: 1.8px solid #fbfdf8;
+  border-radius: 50%;
+  background: #137f66;
+  box-shadow: 0 1px 5px #1e6b4933;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+.city-name {
+  position: absolute;
+  left: 24px;
+  top: 5px;
+  display: block;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background: #f2f6ed94;
+  color: #42604c;
+  font-size: 9px;
+  line-height: 15px;
+  font-weight: 550;
+  white-space: nowrap;
+  transition:
+    color 0.18s ease,
+    background 0.18s ease;
+}
+.city-button--primary {
+  z-index: 3;
+}
+.city-button--primary .city-name {
+  padding: 3px 7px;
+  top: 3px;
+  color: #264d3c;
+  background: #f9fcf3db;
+  box-shadow: 0 1px 5px #27433008;
+  font-weight: 650;
+  font-size: 11px;
+}
+.city-button--left .city-name {
+  left: auto;
+  right: 24px;
+}
+.city-button--bottom .city-name {
+  left: 50%;
+  top: 27px;
+  transform: translateX(-50%);
+}
+.city-button:hover,
+.city-button:focus-visible,
+.city-button--selected {
+  z-index: 5;
+}
+.city-button:hover .city-name,
+.city-button:focus-visible .city-name,
+.city-button--selected .city-name {
+  background: #fff;
+  color: #087a61;
+  box-shadow: 0 2px 9px #1b644217;
+}
+.city-button:hover .city-dot,
+.city-button:focus-visible .city-dot,
+.city-button--selected .city-dot {
+  transform: scale(1.25);
+  box-shadow:
+    0 0 0 5px #17896c24,
+    0 2px 5px #1e6b4933;
+}
+.city-button:focus-visible {
+  outline: 2px solid #168d71;
+  outline-offset: 2px;
+  background: #ffffff66;
+}
+.city-button--selected .city-name {
+  font-weight: 750;
+}
+.compass {
+  position: absolute;
+  right: 25px;
+  top: 73px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 4px;
+  opacity: 0.68;
+  pointer-events: none;
+}
+.compass span {
+  color: #4c6c58;
+  font-size: 8px;
+  font-weight: 650;
+  letter-spacing: 1px;
+}
+.compass svg {
+  width: 14px;
+  height: 21px;
+  transform: rotate(-8deg);
+}
+.map-footer {
+  position: absolute;
+  inset: auto 20px 17px 23px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  pointer-events: none;
+}
+.map-legend {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #57725d;
+  font-size: 10px;
+}
+.legend-dot {
+  height: 6px;
+  width: 6px;
+  background: #2a9472;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px #24886513;
+}
+.map-controls {
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  border: 1px solid #dde7d9;
+  border-radius: 8px;
+  background: #fbfdf8ed;
+  box-shadow: 0 2px 7px #48634108;
+  pointer-events: auto;
+}
+.map-controls button {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border: 0;
+  border-radius: 5px;
+  padding: 5px;
+  background: transparent;
+  color: #496d57;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+.map-controls button:hover {
+  background: #e9f0e5;
+}
+.map-controls button:disabled {
+  color: #b4c1b2;
+  cursor: default;
+  background: transparent;
+}
+.map-controls button:focus-visible {
+  outline: 2px solid #188768;
+  outline-offset: 1px;
+}
+.map-controls svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.4;
+}
+.controls-divider {
+  width: 1px;
+  height: 14px;
+  background: #e1e8dd;
+  margin: 0 3px;
+}
+.fallback-map {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 22px 5px 14px;
+}
+.fallback-city {
+  cursor: pointer;
+  outline: none;
+}
+.fallback-hit {
+  fill: transparent;
+}
+.fallback-pulse {
+  fill: #087e6817;
+}
+.fallback-city text {
+  fill: #35593e;
+  stroke: #eaf1e6;
+  stroke-width: 3px;
+  paint-order: stroke;
+  stroke-linejoin: round;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 500;
+}
+.fallback-city .fallback-primary {
+  font-size: 13px;
+  font-weight: 750;
+}
+.fallback-city:hover .fallback-pulse,
+.fallback-city:focus-visible .fallback-pulse,
+.fallback-city.is-selected .fallback-pulse {
+  fill: #087e6838;
+  stroke: #14866a;
+  stroke-width: 1.2px;
+}
+.fallback-city.is-selected text {
+  fill: #00694f;
+  font-weight: 750;
+}
+.fallback-note {
+  color: #84987f;
+  font-size: 9px;
+}
+@media (min-width: 1100px) {
+  .city-name {
+    font-size: 10px;
+  }
+  .city-button--primary .city-name {
+    font-size: 11px;
+  }
+}
+@media (max-width: 620px) {
+  .map-heading {
+    inset: 19px 18px auto;
+  }
+  .map-hint {
+    font-size: 9px;
+  }
+  .map-badge {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+  .compass {
+    right: 18px;
+    top: 64px;
+  }
+  .city-name {
+    font-size: 8px;
+    padding: 1px 3px;
+    left: 21px;
+    top: 6px;
+  }
+  .city-button--primary .city-name {
+    font-size: 10px;
+    padding: 2px 4px;
+    top: 5px;
+  }
+  .city-button--left .city-name {
+    right: 21px;
+  }
+  .map-footer {
+    left: 18px;
+    right: 16px;
+    bottom: 15px;
+  }
+  .map-legend {
+    font-size: 9px;
+  }
+  .fallback-city text {
+    font-size: 11px;
+  }
+  .fallback-city .fallback-primary {
+    font-size: 15px;
+  }
+}
+@media (max-width: 420px) {
+  .map-hint {
+    display: none;
+  }
+  .city-button:not(.city-button--primary):not(.city-button--selected):not(
+      :focus-visible
+    ):not(:hover)
+    .city-name {
+    display: none;
+  }
+  .city-name {
+    font-size: 9px;
+  }
+  .map-legend {
+    max-width: 145px;
+    line-height: 1.5;
+  }
+  .fallback-city text {
+    display: none;
+  }
+  .fallback-city text.fallback-primary,
+  .fallback-city:focus-visible text,
+  .fallback-city.is-selected text {
+    display: block;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}

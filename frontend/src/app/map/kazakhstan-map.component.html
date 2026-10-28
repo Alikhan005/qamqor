@@ -1,0 +1,199 @@
+<div class="map-shell" [class.map-shell--fallback]="fallback">
+  <div class="map-heading">
+    <span class="map-badge"
+      ><span class="badge-dot"></span>{{ fallback ? "2D" : "3D" }}
+      <span class="badge-separator">/</span> KAZAKHSTAN</span
+    >
+    <span class="map-hint">{{
+      language === "kk" ? "Жақсылықтың шекарасы жоқ" : "У доброты нет границ"
+    }}</span>
+  </div>
+
+  <div #viewport class="map-viewport">
+    <canvas
+      #canvas
+      [hidden]="fallback"
+      role="img"
+      [attr.aria-label]="
+        language === 'kk'
+          ? 'Қазақстанның интерактивті 3D картасы. Қала таңдау үшін батырмаларды пайдаланыңыз.'
+          : 'Интерактивная 3D-карта Казахстана. Используйте кнопки городов для выбора.'
+      "
+    ></canvas>
+    <div
+      class="city-labels"
+      *ngIf="!fallback"
+      role="group"
+      [attr.aria-label]="
+        language === 'kk' ? 'Картадағы қалалар' : 'Города на карте'
+      "
+    >
+      <button
+        #cityButton
+        *ngFor="let item of cities"
+        type="button"
+        class="city-button"
+        [class.city-button--primary]="item.primary"
+        [class.city-button--selected]="city === item.name"
+        [class.city-button--left]="item.align === 'left'"
+        [class.city-button--bottom]="item.align === 'bottom'"
+        [attr.aria-pressed]="city === item.name"
+        [attr.aria-label]="
+          (language === 'kk' ? 'Қала таңдау: ' : 'Выбрать город: ') +
+          cityLabel(item)
+        "
+        [attr.title]="cityLabel(item)"
+        (click)="selectCity(item)"
+      >
+        <span class="city-dot"></span
+        ><span class="city-name">{{ cityLabel(item) }}</span>
+      </button>
+    </div>
+
+    <svg
+      *ngIf="fallback"
+      class="fallback-map"
+      viewBox="0 0 1000 550"
+      role="group"
+      [attr.aria-label]="
+        language === 'kk'
+          ? 'Қазақстан қалаларының картасы'
+          : 'Карта городов Казахстана'
+      "
+    >
+      <defs>
+        <pattern
+          id="qamqor-map-grid"
+          width="28"
+          height="28"
+          patternUnits="userSpaceOnUse"
+        >
+          <path d="M28 0H0V28" fill="none" stroke="#dce7dd" stroke-width=".7" />
+        </pattern>
+        <filter
+          id="qamqor-map-shadow"
+          x="-20%"
+          y="-20%"
+          width="140%"
+          height="160%"
+        >
+          <feDropShadow
+            dx="0"
+            dy="13"
+            stdDeviation="12"
+            flood-color="#627e69"
+            flood-opacity=".17"
+          />
+        </filter>
+        <clipPath id="qamqor-map-clip">
+          <path [attr.d]="fallbackPath" />
+        </clipPath>
+      </defs>
+      <rect width="1000" height="550" fill="url(#qamqor-map-grid)" />
+      <path [attr.d]="fallbackPath" fill="#b5c8ae" transform="translate(0 9)" />
+      <path
+        [attr.d]="fallbackPath"
+        fill="#d4e0c9"
+        stroke="#edf2e6"
+        stroke-width="2"
+        filter="url(#qamqor-map-shadow)"
+      />
+      <g clip-path="url(#qamqor-map-clip)">
+        <path
+          *ngFor="let path of fallbackDivisions"
+          [attr.d]="path"
+          fill="none"
+          stroke="#f5f7ec"
+          stroke-width="2"
+        />
+      </g>
+      <g
+        *ngFor="let item of cities"
+        class="fallback-city"
+        [class.is-selected]="city === item.name"
+        [attr.transform]="
+          'translate(' +
+          svgX(item.coordinates[0]) +
+          ',' +
+          svgY(item.coordinates[1]) +
+          ')'
+        "
+        role="button"
+        tabindex="0"
+        [attr.aria-pressed]="city === item.name"
+        [attr.aria-label]="
+          (language === 'kk' ? 'Қала таңдау: ' : 'Выбрать город: ') +
+          cityLabel(item)
+        "
+        (click)="selectCity(item)"
+        (keydown.enter)="selectCity(item)"
+        (keydown.space)="$event.preventDefault(); selectCity(item)"
+      >
+        <title>{{ cityLabel(item) }}</title>
+        <circle r="16" class="fallback-hit" />
+        <circle r="12" class="fallback-pulse" />
+        <path d="M0 0V-16" stroke="#258e74" stroke-width="3" />
+        <circle cy="-16" r="6" fill="#0d856e" stroke="white" stroke-width="2" />
+        <text x="12" y="-12" [class.fallback-primary]="item.primary">
+          {{ cityLabel(item) }}
+        </text>
+      </g>
+    </svg>
+
+    <div class="compass" aria-hidden="true">
+      <span>N</span
+      ><svg viewBox="0 0 24 32">
+        <path d="M12 2 20 28 12 23 4 28Z" fill="#476a5b" />
+        <path d="M12 2V23L4 28Z" fill="#94ad9d" />
+      </svg>
+    </div>
+  </div>
+
+  <div class="map-footer">
+    <div class="map-legend">
+      <span class="legend-dot"></span
+      ><span>{{
+        language === "kk" ? "Көмек сізге жақын" : "Помощь рядом с вами"
+      }}</span>
+    </div>
+    <div class="map-controls" *ngIf="!fallback">
+      <button
+        type="button"
+        (click)="resetView()"
+        [attr.aria-label]="
+          language === 'kk'
+            ? 'Картаны қалпына келтіру'
+            : 'Сбросить положение карты'
+        "
+        [attr.title]="language === 'kk' ? 'Бастапқы көрініс' : 'Исходный вид'"
+        class="reset-button"
+      >
+        <svg viewBox="0 0 20 20" aria-hidden="true">
+          <path d="M5.1 6.3a6 6 0 1 1-.9 6.3M5 2.8v4H1" />
+        </svg>
+      </button>
+      <span class="controls-divider"></span>
+      <button
+        type="button"
+        (click)="zoom(-1)"
+        [disabled]="zoomLevel <= 0.85"
+        [attr.aria-label]="language === 'kk' ? 'Кішірейту' : 'Отдалить карту'"
+      >
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10h10" /></svg>
+      </button>
+      <button
+        type="button"
+        (click)="zoom(1)"
+        [disabled]="zoomLevel >= 1.65"
+        [attr.aria-label]="language === 'kk' ? 'Үлкейту' : 'Приблизить карту'"
+      >
+        <svg viewBox="0 0 20 20" aria-hidden="true">
+          <path d="M5 10h10M10 5v10" />
+        </svg>
+      </button>
+    </div>
+    <span *ngIf="fallback" class="fallback-note">{{
+      language === "kk" ? "Жеңіл карта" : "Облегчённая карта"
+    }}</span>
+  </div>
+</div>

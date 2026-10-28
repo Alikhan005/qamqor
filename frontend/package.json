@@ -1,0 +1,38 @@
+{
+  "name": "qamqor-web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "ng serve --host 127.0.0.1",
+    "start:api": "ng serve --host 127.0.0.1 --configuration api",
+    "build": "ng build --base-href ./",
+    "build:api": "ng build --configuration production,api --base-href ./",
+    "check": "tsc --noEmit -p tsconfig.app.json",
+    "test:e2e": "playwright test",
+    "screenshot": "node scripts/capture.mjs",
+    "format": "prettier --write \"src/**/*.{ts,html,css}\" \"*.json\""
+  },
+  "engines": {
+    "node": "^20.19.0 || ^22.12.0 || >=24.0.0"
+  },
+  "dependencies": {
+    "@angular/common": "21.2.25",
+    "@angular/compiler": "21.2.25",
+    "@angular/core": "21.2.25",
+    "@angular/forms": "21.2.25",
+    "@angular/platform-browser": "21.2.25",
+    "@fontsource-variable/manrope": "5.3.0",
+    "rxjs": "7.8.2",
+    "three": "0.186.1",
+    "tslib": "2.8.1"
+  },
+  "devDependencies": {
+    "@angular/build": "21.2.25",
+    "@angular/cli": "21.2.25",
+    "@angular/compiler-cli": "21.2.25",
+    "@playwright/test": "^1.56.1",
+    "@types/three": "0.183.1",
+    "prettier": "^3.6.2",
+    "typescript": "5.9.3"
+  }
+}
